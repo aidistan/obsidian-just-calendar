@@ -1,0 +1,10 @@
+{
+	"id": "just-calendar",
+	"name": "Just Calendar",
+	"version": "0.1.0",
+	"minAppVersion": "1.12.0",
+	"description": "Just a calendar which works with the core plugins",
+	"author": "Aidi Stan",
+	"authorUrl": "https://github.com/aidistan",
+	"isDesktopOnly": false
+}
