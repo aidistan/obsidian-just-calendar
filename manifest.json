@@ -3,7 +3,7 @@
 	"name": "Just Calendar",
 	"version": "0.2.1",
 	"minAppVersion": "1.12.0",
-	"description": "Just a calendar which works with the core plugins",
+	"description": "Just a calendar which works with the core plugins.",
 	"author": "Aidi Stan",
 	"authorUrl": "https://github.com/aidistan",
 	"isDesktopOnly": false
