@@ -6,6 +6,7 @@ Just a calendar which works with the "daily notes" core plugin.
 
 ## Features
 
+- Bidirectional linkage: Sync between calendar and daily notes.
 - Quick jump: Easily navigate between years and months.
 - Keyboard support: Fully operable via keyboard shortcuts.
 - Scroll navigation: Support for page turning using the mouse wheel.
@@ -31,6 +32,7 @@ Just a calendar which works with the "daily notes" core plugin.
 
 ## 特点
 
+- "日历-日记"双向联动
 - 年/月快速跳转
 - 支持键盘操作
 - 支持滚轮翻页
