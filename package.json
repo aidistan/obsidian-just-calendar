@@ -1,6 +1,6 @@
 {
-	"name": "just-calendar",
-	"version": "0.1.0",
+	"name": "obsidian-just-calendar",
+	"version": "0.2.0",
 	"description": "Just a calendar which works with the core plugins",
 	"main": "main.js",
 	"type": "module",
