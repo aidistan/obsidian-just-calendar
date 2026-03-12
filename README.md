@@ -1,6 +1,6 @@
 # Obsidian Plugin: Just Calendar
 
-> English (en) | 中文
+> → English (en) | [中文](https://github.com/aidistan/obsidian-just-calendar#obsidian-%E6%8F%92%E4%BB%B6just-calendar)
 
 Just a calendar which works with the "daily notes" core plugin.
 
@@ -17,9 +17,15 @@ Just a calendar which works with the "daily notes" core plugin.
 
 (Resulting in zero pressure.)
 
+## Acknowledges
+
+- CalendarJS: https://calendarjs.com/
+
 ---
 
-> 中文文档 (zh) | En
+# Obsidian 插件：Just Calendar
+
+> → 中文文档 (zh) | [En](https://github.com/aidistan/obsidian-just-calendar#obsidian-plugin-just-calendar)
 
 一个配合“日记”核心插件使用的简单日历，仅此而已。
 
@@ -35,3 +41,7 @@ Just a calendar which works with the "daily notes" core plugin.
 - 没有字数统计
 
 （因此完全不会有压力~）
+
+## 致谢
+
+- CalendarJS: https://calendarjs.com/
