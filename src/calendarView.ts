@@ -103,11 +103,18 @@ export default class CalendarView extends Obsidian.ItemView {
 	private async openDailyNote(date: moment.Moment, isCtrlPressed: boolean) {
 		const { app } = this;
 		const options = this.plugin.dailyNotesOptions;
-		const fileName = date.format(options.format);
-		const filePath = `${options.folder}/${fileName}.md`.replace(/^\//, "");
+		const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
 		let file = this.app.vault.getAbstractFileByPath(filePath);
 
-		if (!file) {
+		// Skip if already opened and been focusing
+		if (file) {
+			const view = this.app.workspace.getLeaf().view;
+			if (view instanceof Obsidian.FileView) {
+				if (view.file?.path === filePath) return;
+			}
+
+		// Try to create if not exists
+		} else {
 			if (this.plugin.settings.confirmBeforeCreating) {
 				const confirmed = await new Promise((resolve) => new (class extends Obsidian.Modal {
 					constructor(app: Obsidian.App) {
@@ -134,9 +141,9 @@ export default class CalendarView extends Obsidian.ItemView {
 					const templateFile = app.vault.getAbstractFileByPath(options.template);
 					if (templateFile instanceof Obsidian.TFile) {
 						content = (await app.vault.read(templateFile))
-							.replace(/{{\s*date\s*}}/gi, fileName)
+							.replace(/{{\s*date\s*}}/gi, date.format(options.format))
 							.replace(/{{\s*time\s*}}/gi, moment().format("HH:mm"))
-							.replace(/{{\s*title\s*}}/gi, fileName)
+							.replace(/{{\s*title\s*}}/gi, date.format(options.format))
 							.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
 								const now = moment();
 								const currentDate = date.clone().set({

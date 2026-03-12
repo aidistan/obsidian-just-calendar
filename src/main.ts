@@ -1,9 +1,9 @@
-import { Notice, Plugin, WorkspaceLeaf } from 'obsidian';
+import Obsidian, { moment } from 'obsidian';
 import { Settings, SettingTab } from './settings';
 import CalendarView from './calendarView';
 import { translate as t } from './constants';
 
-export default class JustCalendarPlugin extends Plugin {
+export default class JustCalendarPlugin extends Obsidian.Plugin {
 	settings: Settings;
 
 	async onload() {
@@ -22,6 +22,22 @@ export default class JustCalendarPlugin extends Plugin {
 		});
 
 		this.addSettingTab(new SettingTab(this.app, this));
+
+		this.registerEvent(
+			this.app.workspace.on('file-open', (file: Obsidian.TFile | null) => {
+				if (!file) return;
+
+				const { format, folder } = this.dailyNotesOptions;
+				const date = moment(file.basename, format, true);
+				if (!date.isValid()) return;
+
+				const expectedPath = `${folder}/${file.name}`.replace(/^\//, "");
+				if (file.path !== expectedPath) return;
+
+				this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
+					.forEach((leaf) => (leaf.view as CalendarView).updateDate(date))
+			})
+		);
 	}
 
 	onUserEnable() {
@@ -34,7 +50,7 @@ export default class JustCalendarPlugin extends Plugin {
 	async openCalendarView() {
 		const { workspace } = this.app;
 
-		let leaf: WorkspaceLeaf | null = null;
+		let leaf: Obsidian.WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(CalendarView.VIEW_TYPE);
 
 		if (leaves.length > 0) {
@@ -43,7 +59,7 @@ export default class JustCalendarPlugin extends Plugin {
 			leaf = workspace.getRightLeaf(false);
 
 			if (leaf == null) {
-				new Notice('Failed to create a calendar view.');
+				new Obsidian.Notice('Failed to create a calendar view.');
 				return;
 			}
 
@@ -55,8 +71,8 @@ export default class JustCalendarPlugin extends Plugin {
 	}
 
 	refreshCalendarViews() {
-		this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE).forEach(
-			(leaf) => leaf.view instanceof CalendarView && leaf.view.render())
+		this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
+			.forEach((leaf) => (leaf.view as CalendarView).render())
 	}
 
 	async loadSettings() {
@@ -74,7 +90,7 @@ export default class JustCalendarPlugin extends Plugin {
 	} {
 		const dailyNotesPlugin = this.app.internalPlugins.getPluginById('daily-notes');
 		if (!dailyNotesPlugin || !dailyNotesPlugin.enabled) {
-			new Notice(t('dailyNotesPluginNotEnabled'));
+			new Obsidian.Notice(t('dailyNotesPluginNotEnabled'));
 			throw new Error(t('dailyNotesPluginNotEnabled'));
 		}
 
