@@ -76,13 +76,16 @@ export default class CalendarView extends Obsidian.ItemView {
 			startingDay: parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault()),
 			onchange: (_: object, value: string) => {
 				const date = moment(value);
-				const isCtrlPressed = (window.event as MouseEvent | KeyboardEvent)?.ctrlKey
-				date.isValid() && this.openDailyNote(date, isCtrlPressed);
+				if (!date.isValid()) return;
+
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				const isCtrlPressed = (window.event as MouseEvent | KeyboardEvent).ctrlKey;
+				void this.openDailyNote(date, isCtrlPressed);
 			}
 		});
 
 		const todayBtn = container.querySelector('.lm-calendar-navigation')?.createEl('button', {
-			text: 'today',
+			text: 'Today',
 			cls: ['lm-calendar-icon', 'lm-ripple'],
 			attr: {
 				type: 'button',
@@ -144,20 +147,19 @@ export default class CalendarView extends Obsidian.ItemView {
 							.replace(/{{\s*date\s*}}/gi, date.format(options.format))
 							.replace(/{{\s*time\s*}}/gi, moment().format("HH:mm"))
 							.replace(/{{\s*title\s*}}/gi, date.format(options.format))
-							.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+							.replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (
+								_timeOrDate: string, calc: string, timeDelta: string, unit: string, momentFormat: string
+							) => {
 								const now = moment();
 								const currentDate = date.clone().set({
 									hour: now.get("hour"),
 									minute: now.get("minute"),
 									second: now.get("second"),
 								});
-								if (calc) {
-									currentDate.add(parseInt(timeDelta, 10), unit);
-								}
-								if (momentFormat) {
-									return currentDate.format(momentFormat.substring(1).trim());
-								}
-								return currentDate.format(options.format);
+								if (calc) currentDate.add(
+									parseInt(timeDelta, 10) as moment.DurationInputArg1,
+									unit as moment.DurationInputArg2);
+								return currentDate.format(momentFormat?.substring(1).trim() || options.format)
 							})
 							.replace(/{{\s*yesterday\s*}}/gi, date.clone().subtract(1, "day").format(options.format))
 							.replace(/{{\s*tomorrow\s*}}/gi, date.clone().add(1, "d").format(options.format));
@@ -170,7 +172,7 @@ export default class CalendarView extends Obsidian.ItemView {
 				}
 
 				file = await app.vault.create(filePath, content);
-			} catch (err) {
+			} catch {
 				new Obsidian.Notice(t('failedToCreateDailyNote'));
 				return;
 			}

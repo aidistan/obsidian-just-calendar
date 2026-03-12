@@ -41,7 +41,7 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 	}
 
 	onUserEnable() {
-		this.openCalendarView();
+		void this.openCalendarView();
 	}
 
 	onunload() {
@@ -67,7 +67,7 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 		}
 
 		// Reveal the leaf in case it is in a collapsed sidebar
-		workspace.revealLeaf(leaf);
+		await workspace.revealLeaf(leaf);
 	}
 
 	refreshCalendarViews() {
@@ -76,7 +76,7 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = new Settings(await this.loadData());
+		this.settings = new Settings((await this.loadData()) as Settings);
 	}
 
 	async saveSettings() {
@@ -84,9 +84,9 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 	}
 
 	get dailyNotesOptions() : {
-		format: any,
-		folder: any,
-		template: any
+		format: string,
+		folder: string,
+		template: string
 	} {
 		const dailyNotesPlugin = this.app.internalPlugins.getPluginById('daily-notes');
 		if (!dailyNotesPlugin || !dailyNotesPlugin.enabled) {

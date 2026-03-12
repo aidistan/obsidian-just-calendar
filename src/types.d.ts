@@ -6,7 +6,11 @@ declare module 'obsidian' {
         internalPlugins: {
             getPluginById(id: string): null | {
                 enabled: boolean;
-                instance: any;
+                instance: Obsidian.Plugin;
+            };
+            getPluginById(id: 'daily-notes'): null | {
+                enabled: boolean;
+                instance: Obsidian.Plugin & { options: object; }
             };
         };
         plugins: {
