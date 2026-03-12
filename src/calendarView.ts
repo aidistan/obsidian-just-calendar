@@ -60,7 +60,7 @@ export default class CalendarView extends Obsidian.ItemView {
 	}
 
 	async onOpen() {
-		this.render();
+		return Promise.resolve(this.render());
 	}
 
 	async onClose() {
@@ -76,11 +76,9 @@ export default class CalendarView extends Obsidian.ItemView {
 			startingDay: parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault()),
 			onchange: (_: object, value: string) => {
 				const date = moment(value);
-				if (!date.isValid()) return;
-
-				// eslint-disable-next-line @typescript-eslint/no-deprecated
-				const isCtrlPressed = (window.event as MouseEvent | KeyboardEvent).ctrlKey;
-				void this.openDailyNote(date, isCtrlPressed);
+				if (date.isValid()) void this.openDailyNote(date, this.app.lastEvent
+					? Obsidian.Keymap.isModifier(this.app.lastEvent, 'Mod')
+					: false);
 			}
 		});
 
@@ -92,7 +90,6 @@ export default class CalendarView extends Obsidian.ItemView {
 				tabindex: '0'
 			}
 		});
-
 		todayBtn?.addEventListener('click', (e: MouseEvent) => this.calendar.setValue?.(moment().format('YYYY-MM-DD')));
 		todayBtn?.click();
 	}
@@ -103,7 +100,7 @@ export default class CalendarView extends Obsidian.ItemView {
 		}
 	}
 
-	private async openDailyNote(date: moment.Moment, isCtrlPressed: boolean) {
+	private async openDailyNote(date: moment.Moment, isModPressed: boolean) {
 		const { app } = this;
 		const options = this.plugin.dailyNotesOptions;
 		const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
@@ -179,7 +176,7 @@ export default class CalendarView extends Obsidian.ItemView {
 		}
 
 		if (file instanceof Obsidian.TFile) {
-			await this.app.workspace.getLeaf(isCtrlPressed).openFile(file);
+			await this.app.workspace.getLeaf(isModPressed).openFile(file);
 		}
 	}
 }
