@@ -76,7 +76,7 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
   }
 
   async loadSettings() {
-    this.settings = new Settings((await this.loadData()) as Settings);
+    this.settings = new Settings((await this.loadData() || {}) as Settings);
   }
 
   async saveSettings() {
@@ -94,10 +94,8 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
       throw new Error(t('dailyNotesPluginNotEnabled'));
     }
 
-    return Object.assign({
-      format: 'YYYY-MM-DD',
-      folder: '',
-      template: ''
-    }, dailyNotesPlugin.instance.options);
+    const options = Object.assign({ folder: '', template: '' }, dailyNotesPlugin.instance.options);
+    options.format ||= 'YYYY-MM-DD'; // default format of daily-notes plugin
+    return options;
   }
 }

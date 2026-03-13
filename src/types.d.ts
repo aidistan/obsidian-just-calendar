@@ -10,7 +10,13 @@ declare module 'obsidian' {
       };
       getPluginById(id: 'daily-notes'): null | {
         enabled: boolean;
-        instance: Obsidian.Plugin & { options: object; }
+        instance: Obsidian.Plugin & {
+          options: {
+            format: string,
+            folder: string,
+            template: string
+          }
+        }
       };
     };
     plugins: {
