@@ -70,15 +70,25 @@ export default class CalendarView extends Obsidian.ItemView {
     const container = this.contentEl;
     container.empty();
 
+    // Capture mouse event manually due to `app.lastEvent` not working in CalendarJS
+    let lastUserEvent: Obsidian.UserEvent | null = null;
+    container.addEventListener('mousedown', (e: Obsidian.UserEvent) => lastUserEvent = e, true);
+
     this.calendar = CalendarJS.Calendar(container, {
       type: 'inline',
       footer: false,
       startingDay: parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault()),
       onchange: (_: object, value: string) => {
         const date = moment(value);
-        if (date.isValid()) void this.openDailyNote(date, this.app.lastEvent
-          ? Obsidian.Keymap.isModifier(this.app.lastEvent, 'Mod')
-          : false);
+        const isModPressed = lastUserEvent
+          ? Obsidian.Keymap.isModifier(lastUserEvent, 'Mod')
+          : false;
+
+        if (date.isValid()) {
+          void this.openDailyNote(date, isModPressed);
+        }
+
+        lastUserEvent = null;
       }
     });
 
@@ -90,7 +100,7 @@ export default class CalendarView extends Obsidian.ItemView {
         tabindex: '0'
       }
     });
-    todayBtn?.addEventListener('click', (e: MouseEvent) => this.calendar.setValue?.(moment().format('YYYY-MM-DD')));
+    todayBtn?.addEventListener('click', (_: MouseEvent) => this.calendar.setValue?.(moment().format('YYYY-MM-DD')));
     todayBtn?.click();
   }
 
