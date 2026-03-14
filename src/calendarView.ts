@@ -138,28 +138,12 @@ export default class CalendarView extends Obsidian.ItemView {
 
         // Use template if available
         if (options.template) {
-          const templateFile = app.vault.getAbstractFileByPath(options.template);
+          const templateFile = app.vault.getAbstractFileByPath(options.template + '.md');
           if (templateFile instanceof Obsidian.TFile) {
             content = (await app.vault.read(templateFile))
-              .replace(/{{\s*date\s*}}/gi, date.format(options.format))
-              .replace(/{{\s*time\s*}}/gi, moment().format("HH:mm"))
-              .replace(/{{\s*title\s*}}/gi, date.format(options.format))
-              .replace(/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi, (
-                _timeOrDate: string, calc: string, timeDelta: string, unit: string, momentFormat: string
-              ) => {
-                const now = moment();
-                const currentDate = date.clone().set({
-                  hour: now.get("hour"),
-                  minute: now.get("minute"),
-                  second: now.get("second"),
-                });
-                if (calc) currentDate.add(
-                  parseInt(timeDelta, 10) as moment.DurationInputArg1,
-                  unit as moment.DurationInputArg2);
-                return currentDate.format(momentFormat?.substring(1).trim() || options.format)
-              })
-              .replace(/{{\s*yesterday\s*}}/gi, date.clone().subtract(1, "day").format(options.format))
-              .replace(/{{\s*tomorrow\s*}}/gi, date.clone().add(1, "d").format(options.format));
+              .replace(/{{\s*title\s*}}/g, date.format(options.format))
+              .replace(/{{\s*date\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => date.format(format || "YYYY-MM-DD"))
+              .replace(/{{\s*time\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => moment().format(format || "HH:mm"))
           }
         }
 
