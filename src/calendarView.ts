@@ -42,7 +42,7 @@ export default class CalendarView extends Obsidian.ItemView {
     CalendarJS.setDictionary(dict);
   }
 
-  public icon = 'calendar';
+  public icon = 'calendar-days';
   private plugin: Plugin;
   private calendar: ReturnType<typeof CalendarJS.Calendar>;
 
