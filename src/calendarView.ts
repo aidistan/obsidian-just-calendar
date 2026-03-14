@@ -92,6 +92,10 @@ export default class CalendarView extends Obsidian.ItemView {
       }
     });
 
+    // HACK: refer to aidistan/obsidian-just-calendar#1
+    this.calendar.setView?.('months');
+    this.calendar.setView?.('days');
+
     const todayBtn = container.querySelector('.lm-calendar-navigation')?.createEl('button', {
       text: '\ue8df',
       cls: ['lm-calendar-icon', 'lm-ripple'],
