@@ -83,7 +83,7 @@ export default class CalendarView extends Obsidian.ItemView {
     });
 
     const todayBtn = container.querySelector('.lm-calendar-navigation')?.createEl('button', {
-      text: 'today', // eslint-disable-line obsidianmd/ui/sentence-case
+      text: '\ue8df',
       cls: ['lm-calendar-icon', 'lm-ripple'],
       attr: {
         type: 'button',
