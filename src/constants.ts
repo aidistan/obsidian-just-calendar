@@ -68,7 +68,8 @@ export const LOCALES = {
     'done': 'Done',
     'reset': 'Reset',
     'create': 'Create',
-    'cancel': 'Cancel'
+    'cancel': 'Cancel',
+    'neverAskAgain': 'Never ask again'
   },
 
   zh: {
@@ -138,7 +139,8 @@ export const LOCALES = {
     'done': '搞定',
     'reset': '重置',
     'create': '创建',
-    'cancel': '取消'
+    'cancel': '取消',
+    'neverAskAgain': '不再询问'
   }
 } as const;
 

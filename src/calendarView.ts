@@ -130,21 +130,28 @@ export default class CalendarView extends Obsidian.ItemView {
       // Try to create if not exists
     } else {
       if (this.plugin.settings.confirmBeforeCreating) {
+        let neverAskAgain = false;
         const confirmed = await new Promise((resolve) => new (class extends Obsidian.Modal {
           constructor(app: Obsidian.App) {
             super(app);
-            this.contentEl.createEl('h2', { text: t('createDailyNoteHeading') });
-            this.contentEl.createEl('p', { text: t('createDailyNoteContent', filePath) });
-            this.contentEl.createDiv("modal-button-container", (containerEl) => {
-              containerEl.createEl('button', { text: t('cancel') })
-                .onclick = () => { resolve(false); this.close(); };
-              containerEl.createEl('button', { text: t('create'), cls: "mod-cta", })
-                .onclick = () => { resolve(true); this.close(); };
-            });
+            this.setTitle(t('createDailyNoteHeading'));
+            new Obsidian.Setting(this.contentEl)
+              .setName(t('createDailyNoteContent', filePath));
+            new Obsidian.Setting(this.contentEl)
+              .setName(t('neverAskAgain'))
+              .addToggle(toggle => toggle.onChange(value => { neverAskAgain = value; }));
+            new Obsidian.Setting(this.contentEl)
+              .addButton(btn => btn.setButtonText(t('cancel')).onClick(() => { resolve(false); this.close(); }))
+              .addButton(btn => btn.setButtonText(t('create')).setClass('mod-cta').onClick(() => { resolve(true); this.close(); }));
           }
         })(app).open());
 
         if (!confirmed) return;
+
+        if (neverAskAgain) {
+          this.plugin.settings.confirmBeforeCreating = false;
+          await this.plugin.saveSettings();
+        }
       }
 
       try {
