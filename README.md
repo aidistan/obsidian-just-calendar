@@ -2,6 +2,8 @@
 
 > → English (en) | [中文](https://github.com/aidistan/obsidian-just-calendar#obsidian-%E6%8F%92%E4%BB%B6just-calendar)
 
+![](assets/screenshot-en.png)
+
 Just a calendar which works with the "daily notes" core plugin.
 
 ## Features
@@ -27,6 +29,8 @@ Just a calendar which works with the "daily notes" core plugin.
 # Obsidian 插件：Just Calendar
 
 > → 中文文档 (zh) | [En](https://github.com/aidistan/obsidian-just-calendar#obsidian-plugin-just-calendar)
+
+![](assets/screenshot-zh.png)
 
 一个配合“日记”核心插件使用的简单日历，仅此而已。
 
