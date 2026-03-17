@@ -42,11 +42,15 @@ export default class CalendarView extends Obsidian.ItemView {
     CalendarJS.setDictionary(dict);
   }
 
-  public icon = 'calendar-days';
-  private plugin: Plugin;
+  public readonly icon = 'calendar-days';
+
+  // Instance of CalendarJS.Calendar
   private calendar: ReturnType<typeof CalendarJS.Calendar>;
 
-  constructor(leaf: Obsidian.WorkspaceLeaf, plugin: Plugin) {
+  // HACK: Latest captured mouse event as a substitute for `app.lastEvent`
+  private lastUserEvent: Obsidian.UserEvent | null = null;
+
+  constructor(leaf: Obsidian.WorkspaceLeaf, private plugin: Plugin) {
     super(leaf);
     this.plugin = plugin;
   }
@@ -60,43 +64,43 @@ export default class CalendarView extends Obsidian.ItemView {
   }
 
   async onOpen() {
-    return Promise.resolve(this.render());
+    // HACK: Capture mouse event manually due to `app.lastEvent` not working in CalendarJS
+    this.contentEl.addEventListener('mousedown', (e: Obsidian.UserEvent) => this.lastUserEvent = e, true);
+
+    return Promise.resolve(this.reload());
   }
 
   async onClose() {
   }
 
-  render() {
-    const container = this.contentEl;
-    container.empty();
+  reload() {
+    this.contentEl.empty();
 
-    // Capture mouse event manually due to `app.lastEvent` not working in CalendarJS
-    let lastUserEvent: Obsidian.UserEvent | null = null;
-    container.addEventListener('mousedown', (e: Obsidian.UserEvent) => lastUserEvent = e, true);
-
-    this.calendar = CalendarJS.Calendar(container, {
+    this.calendar = CalendarJS.Calendar(this.contentEl, {
       type: 'inline',
       footer: false,
       startingDay: parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault()),
-      onchange: (_: object, value: string) => {
-        const date = moment(value);
-        const isModPressed = lastUserEvent
-          ? Obsidian.Keymap.isModifier(lastUserEvent, 'Mod')
-          : false;
+      onchange: (_: object, value: string) =>this.onDateUpdated(moment(value))
+    });
 
-        if (date.isValid()) {
-          void this.openDailyNote(date, isModPressed);
-        }
+    // HACK: Call onDateUpdated again in case of clicks on already selected dates
+    // https://github.com/aidistan/obsidian-just-calendar/issues/2
+    this.contentEl.addEventListener('click', (e: MouseEvent) => {
+      const content = this.contentEl.querySelector('.lm-calendar-content');
+      const target = e.target as HTMLElement;
+      const date = this.calendar.getValue?.();
 
-        lastUserEvent = null;
+      if (target.parentNode === content && date) {
+        this.onDateUpdated(moment(date));
       }
     });
 
-    // HACK: refer to aidistan/obsidian-just-calendar#1
+    // HACK: Force to update .lm-calendar-content
+    // https://github.com/aidistan/obsidian-just-calendar/issues/1
     this.calendar.setView?.('months');
     this.calendar.setView?.('days');
 
-    const todayBtn = container.querySelector('.lm-calendar-navigation')?.createEl('button', {
+    const todayBtn = this.contentEl.querySelector('.lm-calendar-navigation')?.createEl('button', {
       text: '\ue8df',
       cls: ['lm-calendar-icon', 'lm-ripple'],
       attr: {
@@ -114,7 +118,19 @@ export default class CalendarView extends Obsidian.ItemView {
     }
   }
 
-  private async openDailyNote(date: moment.Moment, isModPressed: boolean) {
+  onDateUpdated(date: moment.Moment) {
+    const isModPressed = this.lastUserEvent
+      ? Obsidian.Keymap.isModifier(this.lastUserEvent, 'Mod')
+      : false;
+
+    if (date.isValid()) {
+      void this.openDailyNote(date, isModPressed);
+    }
+
+    this.lastUserEvent = null;
+  }
+
+  private async openDailyNote(date: moment.Moment, newLeaf: boolean) {
     const { app } = this;
     const options = this.plugin.dailyNotesOptions;
     const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
@@ -181,7 +197,7 @@ export default class CalendarView extends Obsidian.ItemView {
     }
 
     if (file instanceof Obsidian.TFile) {
-      await this.app.workspace.getLeaf(isModPressed).openFile(file);
+      await this.app.workspace.getLeaf(newLeaf).openFile(file);
     }
   }
 }

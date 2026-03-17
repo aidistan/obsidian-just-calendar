@@ -70,9 +70,9 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
     await workspace.revealLeaf(leaf);
   }
 
-  refreshCalendarViews() {
+  reloadCalendarViews() {
     this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-      .forEach((leaf) => (leaf.view as CalendarView).render())
+      .forEach((leaf) => (leaf.view as CalendarView).reload())
   }
 
   async loadSettings() {

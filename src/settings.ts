@@ -27,11 +27,8 @@ export class Settings {
 }
 
 export class SettingTab extends Obsidian.PluginSettingTab {
-  plugin: Plugin;
-
-  constructor(app: Obsidian.App, plugin: Plugin) {
+  constructor(app: Obsidian.App, private plugin: Plugin) {
     super(app, plugin);
-    this.plugin = plugin;
   }
 
   display(): void {
@@ -51,7 +48,7 @@ export class SettingTab extends Obsidian.PluginSettingTab {
           await this.plugin.saveSettings();
 
           CalendarView.setDictionaryFromSettings(this.plugin.settings);
-          this.plugin.refreshCalendarViews();
+          this.plugin.reloadCalendarViews();
         })
       );
 
@@ -74,7 +71,7 @@ export class SettingTab extends Obsidian.PluginSettingTab {
           this.plugin.settings.weekStartingOn = value;
           await this.plugin.saveSettings();
 
-          this.plugin.refreshCalendarViews();
+          this.plugin.reloadCalendarViews();
         }));
 
     new Obsidian.Setting(containerEl)
