@@ -1,56 +1,17 @@
 import Obsidian, { moment } from 'obsidian';
-import CalendarJS from '@calendarjs/ce';
+import { Application } from '@hotwired/stimulus';
 import Plugin from './main';
-import { Settings } from './settings';
-import { LOCALES, translate as t } from './constants';
+import CalendarController from './CalendarController';
+import { translate as t } from './constants';
 
 export default class CalendarView extends Obsidian.ItemView {
   public static readonly VIEW_TYPE = 'calendar-view';
 
-  private static readonly DICTIONARY_KEYS = {
-    'January': 'jan.',
-    'February': 'feb.',
-    'March': 'mar.',
-    'April': 'apr.',
-    'May': 'may.',
-    'June': 'jun.',
-    'July': 'jul.',
-    'August': 'aug.',
-    'September': 'sep.',
-    'October': 'oct.',
-    'November': 'nov.',
-    'December': 'dec.',
-    'Sunday': 'sun.',
-    'Monday': 'mon.',
-    'Tuesday': 'tue.',
-    'Wednesday': 'wed.',
-    'Thursday': 'thu.',
-    'Friday': 'fri.',
-    'Saturday': 'sat.',
-    'Done': 'done',
-    'Reset': 'reset'
-  };
-
-  public static setDictionaryFromSettings(settings: Settings) {
-    const locale = settings.localeOverrideWithLocaleDefault() as keyof typeof LOCALES;
-
-    const dict: Record<string, string> = {};
-    for (const [key, value] of Object.entries(this.DICTIONARY_KEYS)) {
-      dict[key] = LOCALES[locale][value as keyof typeof LOCALES['en']] as string;
-    }
-
-    CalendarJS.setDictionary(dict);
-  }
-
   public readonly icon = 'calendar-days';
 
-  // Instance of CalendarJS.Calendar
-  private calendar: ReturnType<typeof CalendarJS.Calendar>;
+  private stimulusApp: Application;
 
-  // HACK: Latest captured mouse event as a substitute for `app.lastEvent`
-  private lastUserEvent: Obsidian.UserEvent | null = null;
-
-  constructor(leaf: Obsidian.WorkspaceLeaf, private plugin: Plugin) {
+  constructor(leaf: Obsidian.WorkspaceLeaf, public plugin: Plugin) {
     super(leaf);
     this.plugin = plugin;
   }
@@ -64,70 +25,59 @@ export default class CalendarView extends Obsidian.ItemView {
   }
 
   async onOpen() {
-    // HACK: Capture mouse event manually due to `app.lastEvent` not working in CalendarJS
-    this.contentEl.addEventListener('mousedown', (e: Obsidian.UserEvent) => this.lastUserEvent = e, true);
+    this.stimulusApp = Application.start(this.contentEl);
+    this.stimulusApp.register('calendar', CalendarController);
 
-    return Promise.resolve(this.reload());
+    this.registerDomEvent(this.contentEl, 'select', (e: CustomEvent) => {
+      const { date: dateStr, originalEvent } = e.detail as { date: string, originalEvent: MouseEvent | TouchEvent };
+      const isModPressed = Obsidian.Keymap.isModifier(originalEvent, 'Mod');
+      void this.openDailyNote(moment(dateStr), isModPressed);
+    });
+
+    this.reload();
+    return Promise.resolve();
   }
 
   async onClose() {
+    this.stimulusApp.stop();
+    return Promise.resolve();
   }
 
-  reload() {
+  public reload() {
     this.contentEl.empty();
-
-    this.calendar = CalendarJS.Calendar(this.contentEl, {
-      type: 'inline',
-      footer: false,
-      startingDay: parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault()),
-      onchange: (_: object, value: string) =>this.onDateUpdated(moment(value))
-    });
-
-    // HACK: Call onDateUpdated again in case of clicks on already selected dates
-    // https://github.com/aidistan/obsidian-just-calendar/issues/2
-    this.contentEl.addEventListener('click', (e: MouseEvent) => {
-      const content = this.contentEl.querySelector('.lm-calendar-content');
-      const target = e.target as HTMLElement;
-      const date = this.calendar.getValue?.();
-
-      if (target.parentNode === content && date) {
-        this.onDateUpdated(moment(date));
-      }
-    });
-
-    // HACK: Force to update .lm-calendar-content
-    // https://github.com/aidistan/obsidian-just-calendar/issues/1
-    this.calendar.setView?.('months');
-    this.calendar.setView?.('days');
-
-    const todayBtn = this.contentEl.querySelector('.lm-calendar-navigation')?.createEl('button', {
-      text: '\ue8df',
-      cls: ['lm-calendar-icon', 'lm-ripple'],
+    this.contentEl.createDiv({
+      cls: 'calendar',
       attr: {
-        type: 'button',
-        tabindex: '0'
+        'data-controller': 'calendar',
+        'data-calendar-locale-value': this.plugin.settings.localeOverrideWithLocaleDefault(),
+        'data-calendar-starting-on-value': this.plugin.settings.weekStartingOnWithLocaleDefault().toString(),
+        'data-calendar-selected-date-value': '',
+        'data-calendar-viewing-date-value': moment().format('YYYY-MM-DD'),
+        'data-calendar-view-type-value': 'days',
+        'data-action': 'wheel->calendar#scroll'
       }
+    }, (calendar) => {
+      calendar.createDiv({ cls: 'calendar-header' }, (header) => {
+        header.createDiv({ cls: 'calendar-title' }, (title) => {
+          title.createEl('button', { attr: { type: 'button', 'data-calendar-target': 'month', 'data-action': 'calendar#toggleView' } });
+          title.createEl('button', { attr: { type: 'button', 'data-calendar-target': 'year', 'data-action': 'calendar#toggleView' } });
+        });
+        header.createDiv({ cls: 'calendar-navigation' }, (nav) => {
+          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#prev' } });
+          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#next' } });
+          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#today' } });
+        });
+      });
+      calendar.createDiv({ cls: 'calendar-container', attr: { 'data-calendar-target': 'container' } }, (container) => {
+        container.createDiv({ cls: 'calendar-weekdays', attr: { 'data-calendar-target': 'weekdays' } });
+        container.createDiv({ cls: 'calendar-content', attr: { 'data-calendar-target': 'contents' } });
+      });
     });
-    todayBtn?.addEventListener('click', (_: MouseEvent) => this.calendar.setValue?.(moment().format('YYYY-MM-DD')));
-    todayBtn?.click();
   }
 
-  public updateDate(date: moment.Moment) {
-    if (this.calendar && date.isValid()) {
-      this.calendar.setValue?.(date.format('YYYY-MM-DD'));
-    }
-  }
-
-  onDateUpdated(date: moment.Moment) {
-    const isModPressed = this.lastUserEvent
-      ? Obsidian.Keymap.isModifier(this.lastUserEvent, 'Mod')
-      : false;
-
-    if (date.isValid()) {
-      void this.openDailyNote(date, isModPressed);
-    }
-
-    this.lastUserEvent = null;
+  public selectDate(date: moment.Moment) {
+    this.containerEl.querySelector('[data-controller="calendar"]')
+      ?.setAttribute('data-calendar-selected-date-value', date.format('YYYY-MM-DD'));
   }
 
   private async openDailyNote(date: moment.Moment, newLeaf: boolean) {

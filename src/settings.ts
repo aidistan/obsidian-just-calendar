@@ -1,6 +1,5 @@
 import Obsidian from 'obsidian';
 import Plugin from './main';
-import CalendarView from './calendarView';
 import { translate as t, default_to as d, CURRENT_LOCALE, WEEKDAYS_ORDER } from './constants';
 
 export class Settings {
@@ -46,8 +45,6 @@ export class SettingTab extends Obsidian.PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.localeOverride = value;
           await this.plugin.saveSettings();
-
-          CalendarView.setDictionaryFromSettings(this.plugin.settings);
           this.plugin.reloadCalendarViews();
         })
       );
@@ -70,7 +67,6 @@ export class SettingTab extends Obsidian.PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.weekStartingOn = value;
           await this.plugin.saveSettings();
-
           this.plugin.reloadCalendarViews();
         }));
 

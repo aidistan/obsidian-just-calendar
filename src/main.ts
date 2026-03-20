@@ -8,7 +8,6 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 
   async onload() {
     await this.loadSettings();
-    CalendarView.setDictionaryFromSettings(this.settings);
 
     this.registerView(
       CalendarView.VIEW_TYPE,
@@ -35,7 +34,7 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
         if (file.path !== expectedPath) return;
 
         this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-          .forEach((leaf) => (leaf.view as CalendarView).updateDate(date))
+          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDate(date));
       })
     );
   }
@@ -49,30 +48,26 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 
   async openCalendarView() {
     const { workspace } = this.app;
+    const existingLeaf = workspace.getLeavesOfType(CalendarView.VIEW_TYPE).first();
 
-    let leaf: Obsidian.WorkspaceLeaf | null = null;
-    const leaves = workspace.getLeavesOfType(CalendarView.VIEW_TYPE);
-
-    if (leaves.length > 0) {
-      leaf = leaves[0]!;
+    if (existingLeaf?.view instanceof CalendarView) {
+      await workspace.revealLeaf(existingLeaf);
     } else {
-      leaf = workspace.getRightLeaf(false);
+      const newLeaf = workspace.getRightLeaf(false);
 
-      if (leaf == null) {
+      if (newLeaf == null) {
         new Obsidian.Notice('Failed to create a calendar view.');
         return;
       }
 
-      await leaf.setViewState({ type: CalendarView.VIEW_TYPE, active: true });
+      await newLeaf.setViewState({ type: CalendarView.VIEW_TYPE, active: true });
+      await workspace.revealLeaf(newLeaf);
     }
-
-    // Reveal the leaf in case it is in a collapsed sidebar
-    await workspace.revealLeaf(leaf);
   }
 
   reloadCalendarViews() {
     this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-      .forEach((leaf) => (leaf.view as CalendarView).reload())
+      .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.reload());
   }
 
   async loadSettings() {
