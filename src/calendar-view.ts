@@ -1,7 +1,7 @@
 import Obsidian, { moment } from 'obsidian';
 import { Application } from '@hotwired/stimulus';
 import Plugin from './main';
-import CalendarController from './CalendarController';
+import CalendarController from './calendar-controller';
 import { translate as t } from './constants';
 
 export default class CalendarView extends Obsidian.ItemView {
@@ -27,13 +27,6 @@ export default class CalendarView extends Obsidian.ItemView {
   async onOpen() {
     this.stimulusApp = Application.start(this.contentEl);
     this.stimulusApp.register('calendar', CalendarController);
-
-    this.registerDomEvent(this.contentEl, 'select', (e: CustomEvent) => {
-      const { date: dateStr, originalEvent } = e.detail as { date: string, originalEvent: MouseEvent | TouchEvent };
-      const isModPressed = Obsidian.Keymap.isModifier(originalEvent, 'Mod');
-      void this.openDailyNote(moment(dateStr), isModPressed);
-    });
-
     this.reload();
     return Promise.resolve();
   }
@@ -73,6 +66,17 @@ export default class CalendarView extends Obsidian.ItemView {
         container.createDiv({ cls: 'calendar-content', attr: { 'data-calendar-target': 'contents' } });
       });
     });
+
+    // Inject current instance into CalendarController
+    setTimeout(() => {
+      const el = this.contentEl.querySelector('[data-controller="calendar"]');
+      if (el === null) return;
+
+      const controller = this.stimulusApp.getControllerForElementAndIdentifier(el, "calendar") as CalendarController;
+      if (controller === null) return;
+
+      controller.parentView = this;
+    }, 100);
   }
 
   public selectDate(date: moment.Moment) {
@@ -80,8 +84,7 @@ export default class CalendarView extends Obsidian.ItemView {
       ?.setAttribute('data-calendar-selected-date-value', date.format('YYYY-MM-DD'));
   }
 
-  private async openDailyNote(date: moment.Moment, newLeaf: boolean) {
-    const { app } = this;
+  public async openDailyNote(date: moment.Moment, newLeaf: boolean) {
     const options = this.plugin.dailyNotesOptions;
     const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
     let file = this.app.vault.getAbstractFileByPath(filePath);
@@ -110,7 +113,7 @@ export default class CalendarView extends Obsidian.ItemView {
               .addButton(btn => btn.setButtonText(t('cancel')).onClick(() => { resolve(false); this.close(); }))
               .addButton(btn => btn.setButtonText(t('create')).setClass('mod-cta').onClick(() => { resolve(true); this.close(); }));
           }
-        })(app).open());
+        })(this.app).open());
 
         if (!confirmed) return;
 
@@ -125,9 +128,9 @@ export default class CalendarView extends Obsidian.ItemView {
 
         // Use template if available
         if (options.template) {
-          const templateFile = app.vault.getAbstractFileByPath(options.template + '.md');
+          const templateFile = this.app.vault.getAbstractFileByPath(options.template + '.md');
           if (templateFile instanceof Obsidian.TFile) {
-            content = (await app.vault.read(templateFile))
+            content = (await this.app.vault.read(templateFile))
               .replace(/{{\s*title\s*}}/g, date.format(options.format))
               .replace(/{{\s*date\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => date.format(format || "YYYY-MM-DD"))
               .replace(/{{\s*time\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => moment().format(format || "HH:mm"))
@@ -135,11 +138,11 @@ export default class CalendarView extends Obsidian.ItemView {
         }
 
         // Ensure folder exists
-        if (options.folder && !(app.vault.getAbstractFileByPath(options.folder))) {
-          await app.vault.createFolder(options.folder);
+        if (options.folder && !(this.app.vault.getAbstractFileByPath(options.folder))) {
+          await this.app.vault.createFolder(options.folder);
         }
 
-        file = await app.vault.create(filePath, content);
+        file = await this.app.vault.create(filePath, content);
       } catch {
         new Obsidian.Notice(t('failedToCreateDailyNote'));
         return;

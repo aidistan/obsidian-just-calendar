@@ -1,6 +1,6 @@
 import Obsidian, { moment } from 'obsidian';
 import { Settings, SettingTab } from './settings';
-import CalendarView from './calendarView';
+import CalendarView from './calendar-view';
 import { translate as t } from './constants';
 
 export default class JustCalendarPlugin extends Obsidian.Plugin {

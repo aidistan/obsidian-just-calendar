@@ -1,5 +1,6 @@
-import { moment, setIcon } from 'obsidian';
+import Obsidian, { moment } from 'obsidian';
 import { Controller } from '@hotwired/stimulus';
+import CalendarView from 'calendar-view';
 import { LOCALES } from './constants';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
@@ -25,11 +26,13 @@ export default class CalendarController extends Controller {
   declare viewingDateValue: string;
   declare viewTypeValue: 'days' | 'months' | 'years';
 
+  public parentView: CalendarView | undefined;
+
   connect() {
     // Use built-in icons
-    setIcon(this.element.querySelector('[data-action="calendar#prev"]') as HTMLElement, 'chevron-up');
-    setIcon(this.element.querySelector('[data-action="calendar#next"]') as HTMLElement, 'chevron-down');
-    setIcon(this.element.querySelector('[data-action="calendar#today"]') as HTMLElement, 'calendar-x');
+    Obsidian.setIcon(this.element.querySelector('[data-action="calendar#prev"]') as HTMLElement, 'chevron-up');
+    Obsidian.setIcon(this.element.querySelector('[data-action="calendar#next"]') as HTMLElement, 'chevron-down');
+    Obsidian.setIcon(this.element.querySelector('[data-action="calendar#today"]') as HTMLElement, 'calendar-x');
 
     this.render();
   }
@@ -68,15 +71,10 @@ export default class CalendarController extends Controller {
     this.viewingDateValue = this.viewingMoment.add(...v[this.viewTypeValue]).format(DATE_FORMAT);
   }
 
-  today(event: Event) {
-    const date = moment().format(DATE_FORMAT);
-    this.selectedDateValue = this.viewingDateValue = date;
-    this.element.dispatchEvent(new CustomEvent('select', {
-        bubbles: true,
-        cancelable: true,
-        detail: { date, originalEvent: event }
-      }));
+  today(event: MouseEvent | TouchEvent) {
     this.viewTypeValue = 'days';
+    this.selectedDateValue = this.viewingDateValue = moment().format(DATE_FORMAT);
+    void this.parentView?.openDailyNote(moment(), Obsidian.Keymap.isModifier(event, 'Mod'));
   }
 
   toggleView(event: Event) {
@@ -88,15 +86,11 @@ export default class CalendarController extends Controller {
     }
   }
 
-  selectDate(event: Event) {
+  selectDate(event: MouseEvent | TouchEvent) {
     const date = (event.currentTarget as HTMLElement).dataset.date;
     if (date) {
       this.selectedDateValue = date;
-      this.element.dispatchEvent(new CustomEvent('select', {
-        bubbles: true,
-        cancelable: true,
-        detail: { date, originalEvent: event }
-      }));
+      void this.parentView?.openDailyNote(moment(date), Obsidian.Keymap.isModifier(event, 'Mod'));
     }
   }
 
