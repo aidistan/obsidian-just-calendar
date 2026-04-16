@@ -118,7 +118,7 @@ export default class CalendarController extends Controller {
     return LOCALES[this.localeValue] as Record<string, string | ((...args: string[]) => string)>;
   }
 
-  private render() {
+  public render() {
     // Render Header
     this.monthTarget.textContent = this.dict[this.viewingMoment.format('MMM').toLowerCase() + '.'] as string;
     this.yearTarget.textContent = this.viewingMoment.format('YYYY');
@@ -182,9 +182,13 @@ export default class CalendarController extends Controller {
       div.dataset.date = dateStr;
       div.dataset.action = 'click->calendar#selectDate';
 
-      if (outside) div.classList.add('outside');
-      if (dateStr === moment().format(DATE_FORMAT)) div.classList.add("today");
-      if (dateStr === this.selectedDateValue) div.classList.add("selected");
+      if (outside) {
+        div.classList.add('outside');
+      } else {
+        if (this.parentView?.checkDailyNote(moment(dateStr))) div.classList.add("exists");
+        if (dateStr === moment().format(DATE_FORMAT)) div.classList.add("today");
+        if (dateStr === this.selectedDateValue) div.classList.add("selected");
+      }
     });
   }
 

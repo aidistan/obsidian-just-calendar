@@ -24,3 +24,10 @@ declare module 'obsidian' {
     };
   }
 }
+
+// Add complementary declarations for Obsidian's injections
+declare global {
+  interface Window {
+    app: Obsidian.App | null;
+  }
+}

@@ -76,12 +76,19 @@ export default class CalendarView extends Obsidian.ItemView {
       if (controller === null) return;
 
       controller.parentView = this;
+      controller.render();
     }, 100);
   }
 
   public selectDate(date: moment.Moment) {
     this.containerEl.querySelector('[data-controller="calendar"]')
       ?.setAttribute('data-calendar-selected-date-value', date.format('YYYY-MM-DD'));
+  }
+
+  public checkDailyNote(date: moment.Moment) {
+    const options = this.plugin.dailyNotesOptions;
+    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
+    return this.app.vault.getAbstractFileByPath(filePath) !== null;
   }
 
   public async openDailyNote(date: moment.Moment, newLeaf: boolean) {

@@ -42,7 +42,7 @@
   .calendar-container {
     .calendar-weekdays {
       padding: 0 var(--size-4-2);
-      font-size: var(--font-smallest);
+      font-size: var(--font-ui-smaller);
       display: grid;
       grid-template-columns: repeat(7, 1fr);
 
@@ -55,7 +55,7 @@
 
     .calendar-content {
       padding: var(--size-4-2);
-      font-size: var(--font-smallest);
+      font-size: var(--font-ui-smaller);
       display: grid;
       grid-template-columns: repeat(7, 1fr);
 
@@ -72,8 +72,13 @@
           color: var(--text-faint);
         }
 
+        &.exists {
+          color: var(--text-accent);
+        }
+
         &.today {
           font-weight: var(--font-bold);
+          font-size: var(--font-ui-small);
         }
 
         &.viewing {
@@ -81,9 +86,8 @@
         }
 
         &.selected {
-          background-color: var(--color-base-25);
           color: var(--text-accent);
-          font-weight: var(--font-bold);
+          background-color: var(--color-base-25);
         }
 
         &:hover, &.selected:hover {
