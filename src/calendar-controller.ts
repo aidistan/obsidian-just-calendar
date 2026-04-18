@@ -18,7 +18,7 @@ export default class CalendarController extends Controller {
     startingOn: { type: Number, default: 0 },
     selectedDate: { type: String, default: '' },
     viewingDate: { type: String, default: moment().format(DATE_FORMAT) },
-    viewType: { type: String, default: 'days' }
+    viewType: { type: String, default: 'days' },
   };
   declare localeValue: keyof typeof LOCALES;
   declare startingOnValue: number;
@@ -97,8 +97,8 @@ export default class CalendarController extends Controller {
   selectMonth(event: Event) {
     const month = (event.currentTarget as HTMLElement).dataset.month;
     if (month) {
-        this.viewingDateValue = this.viewingMoment.month(month).format(DATE_FORMAT);
-        this.viewTypeValue = 'days';
+      this.viewingDateValue = this.viewingMoment.month(month).format(DATE_FORMAT);
+      this.viewTypeValue = 'days';
     }
   }
 
@@ -139,7 +139,7 @@ export default class CalendarController extends Controller {
 
   private renderWeekdays() {
     let keys = ['sun.', 'mon.', 'tue.', 'wed.', 'thu.', 'fri.', 'sat.'];
-    keys = keys.slice(this.startingOnValue).concat(keys.slice(0, this.startingOnValue))
+    keys = keys.slice(this.startingOnValue).concat(keys.slice(0, this.startingOnValue));
 
     this.weekdaysTarget.empty();
     for (const key of keys) {
@@ -185,9 +185,9 @@ export default class CalendarController extends Controller {
       if (outside) {
         div.classList.add('outside');
       } else {
-        if (this.parentView?.checkDailyNote(moment(dateStr))) div.classList.add("exists");
-        if (dateStr === moment().format(DATE_FORMAT)) div.classList.add("today");
-        if (dateStr === this.selectedDateValue) div.classList.add("selected");
+        if (this.parentView?.checkDailyNote(moment(dateStr))) div.classList.add('exists');
+        if (dateStr === moment().format(DATE_FORMAT)) div.classList.add('today');
+        if (dateStr === this.selectedDateValue) div.classList.add('selected');
       }
     });
   }
@@ -201,7 +201,7 @@ export default class CalendarController extends Controller {
     for (let i = 0; i < keys.length; i++) {
       this.contentsTarget.createDiv({ text: this.dict[keys[i] as string] as string }, div => {
         div.dataset.month = i.toString();
-        div.dataset.action = "click->calendar#selectMonth";
+        div.dataset.action = 'click->calendar#selectMonth';
 
         if (i === currentMonth) div.classList.add('viewing');
       });
@@ -217,10 +217,10 @@ export default class CalendarController extends Controller {
     for (let year = startYear; year < startYear + 16; year++) {
       this.contentsTarget.createDiv({ text: year.toString() }, div => {
         div.dataset.year = year.toString();
-        div.dataset.action = "click->calendar#selectYear";
+        div.dataset.action = 'click->calendar#selectYear';
 
         if (year === currentYear) div.classList.add('viewing');
-      })
+      });
     }
   }
 }

@@ -47,8 +47,8 @@ export default class CalendarView extends Obsidian.ItemView {
         'data-calendar-selected-date-value': '',
         'data-calendar-viewing-date-value': moment().format('YYYY-MM-DD'),
         'data-calendar-view-type-value': 'days',
-        'data-action': 'wheel->calendar#scroll'
-      }
+        'data-action': 'wheel->calendar#scroll',
+      },
     }, (calendar) => {
       calendar.createDiv({ cls: 'calendar-header' }, (header) => {
         header.createDiv({ cls: 'calendar-title' }, (title) => {
@@ -72,7 +72,7 @@ export default class CalendarView extends Obsidian.ItemView {
       const el = this.contentEl.querySelector('[data-controller="calendar"]');
       if (el === null) return;
 
-      const controller = this.stimulusApp.getControllerForElementAndIdentifier(el, "calendar") as CalendarController;
+      const controller = this.stimulusApp.getControllerForElementAndIdentifier(el, 'calendar') as CalendarController;
       if (controller === null) return;
 
       controller.parentView = this;
@@ -87,13 +87,13 @@ export default class CalendarView extends Obsidian.ItemView {
 
   public checkDailyNote(date: moment.Moment) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
+    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, '');
     return this.app.vault.getAbstractFileByPath(filePath) !== null;
   }
 
   public async openDailyNote(date: moment.Moment, newLeaf: boolean) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, "");
+    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, '');
     let file = this.app.vault.getAbstractFileByPath(filePath);
 
     // Skip if already opened and been focusing
@@ -139,8 +139,8 @@ export default class CalendarView extends Obsidian.ItemView {
           if (templateFile instanceof Obsidian.TFile) {
             content = (await this.app.vault.read(templateFile))
               .replace(/{{\s*title\s*}}/g, date.format(options.format))
-              .replace(/{{\s*date\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => date.format(format || "YYYY-MM-DD"))
-              .replace(/{{\s*time\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => moment().format(format || "HH:mm"))
+              .replace(/{{\s*date\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => date.format(format || 'YYYY-MM-DD'))
+              .replace(/{{\s*time\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => moment().format(format || 'HH:mm'));
           }
         }
 

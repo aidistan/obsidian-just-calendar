@@ -10,7 +10,7 @@ export class Settings {
   constructor({
     localeOverride = '',
     weekStartingOn = '',
-    confirmBeforeCreating = true
+    confirmBeforeCreating = true,
   }: {
     localeOverride: string;
     weekStartingOn: string;
@@ -21,8 +21,8 @@ export class Settings {
     this.confirmBeforeCreating = confirmBeforeCreating;
   }
 
-  localeOverrideWithLocaleDefault(): string { return this.localeOverride || d('localeOverride') }
-  weekStartingOnWithLocaleDefault(): string { return this.weekStartingOn || d('weekStartingOn') }
+  localeOverrideWithLocaleDefault(): string { return this.localeOverride || d('localeOverride'); }
+  weekStartingOnWithLocaleDefault(): string { return this.weekStartingOn || d('weekStartingOn'); }
 }
 
 export class SettingTab extends Obsidian.PluginSettingTab {
@@ -46,7 +46,7 @@ export class SettingTab extends Obsidian.PluginSettingTab {
           this.plugin.settings.localeOverride = value;
           await this.plugin.saveSettings();
           this.plugin.reloadCalendarViews();
-        })
+        }),
       );
 
     new Obsidian.Setting(containerEl)

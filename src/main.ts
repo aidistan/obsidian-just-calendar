@@ -11,13 +11,13 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
 
     this.registerView(
       CalendarView.VIEW_TYPE,
-      (leaf) => new CalendarView(leaf, this)
+      (leaf) => new CalendarView(leaf, this),
     );
 
     this.addCommand({
       id: 'open-calendar-view',
       name: t('openCalendarView'),
-      callback: async () => this.openCalendarView()
+      callback: async () => this.openCalendarView(),
     });
 
     this.addSettingTab(new SettingTab(this.app, this));
@@ -30,12 +30,12 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
         const date = moment(file.basename, format, true);
         if (!date.isValid()) return;
 
-        const expectedPath = `${folder}/${file.name}`.replace(/^\//, "");
+        const expectedPath = `${folder}/${file.name}`.replace(/^\//, '');
         if (file.path !== expectedPath) return;
 
         this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
           .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDate(date));
-      })
+      }),
     );
   }
 

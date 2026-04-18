@@ -69,7 +69,7 @@ export const LOCALES = {
     'reset': 'Reset',
     'create': 'Create',
     'cancel': 'Cancel',
-    'neverAskAgain': 'Never ask again'
+    'neverAskAgain': 'Never ask again',
   },
 
   zh: {
@@ -140,19 +140,19 @@ export const LOCALES = {
     'reset': '重置',
     'create': '创建',
     'cancel': '取消',
-    'neverAskAgain': '不再询问'
-  }
+    'neverAskAgain': '不再询问',
+  },
 } as const;
 
 export const LOCALE_DEFAULTS = {
   en: {
     'localeOverride': 'en',
-    'weekStartingOn': '0'
+    'weekStartingOn': '0',
   },
   zh: {
     'localeOverride': 'zh',
-    'weekStartingOn': '1'
-  }
+    'weekStartingOn': '1',
+  },
 } as const;
 
 export const CURRENT_LOCALE = getLanguage() in LOCALES ? getLanguage() as keyof typeof LOCALES : 'en';
