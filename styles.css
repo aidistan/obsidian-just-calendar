@@ -86,7 +86,6 @@
         }
 
         &.selected {
-          color: var(--text-accent);
           background-color: var(--color-base-25);
         }
 

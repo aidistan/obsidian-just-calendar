@@ -150,6 +150,9 @@ export default class CalendarView extends Obsidian.ItemView {
         }
 
         file = await this.app.vault.create(filePath, content);
+
+        // Reload the view to render the existence of this note
+        this.reload();
       } catch {
         new Obsidian.Notice(t('failedToCreateDailyNote'));
         return;
