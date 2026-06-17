@@ -15,7 +15,6 @@ Just a calendar which works with the "daily notes" core plugin.
 
 ## Limitations
 
-- No journal indicators
 - No word count
 
 (Resulting in zero pressure.)
@@ -43,7 +42,6 @@ Just a calendar which works with the "daily notes" core plugin.
 
 ## 缺点
 
-- 不显示日记存在与否
 - 没有字数统计
 
 （因此完全不会有压力~）
