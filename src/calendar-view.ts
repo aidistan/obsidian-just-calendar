@@ -68,7 +68,7 @@ export default class CalendarView extends Obsidian.ItemView {
     });
 
     // Inject current instance into CalendarController
-    setTimeout(() => {
+    window.setTimeout(() => {
       const el = this.contentEl.querySelector('[data-controller="calendar"]');
       if (el === null) return;
 

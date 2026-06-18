@@ -1,6 +1,6 @@
 import Obsidian, { moment } from 'obsidian';
 import { Controller } from '@hotwired/stimulus';
-import CalendarView from 'calendar-view';
+import CalendarView from './calendar-view';
 import { LOCALES } from './constants';
 
 const DATE_FORMAT = 'YYYY-MM-DD';

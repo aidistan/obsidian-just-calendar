@@ -4,6 +4,17 @@ import globals from 'globals';
 import { globalIgnores } from 'eslint/config';
 
 export default tseslint.config(
+  globalIgnores([
+    'node_modules',
+    'dist',
+    'esbuild.config.mjs',
+    'version-bump.mjs',
+    'versions.json',
+    'main.js',
+    'package.json',
+    'package-lock.json',
+		'tsconfig.json',
+  ]),
   {
     languageOptions: {
       globals: {
@@ -12,7 +23,7 @@ export default tseslint.config(
       parserOptions: {
         projectService: {
           allowDefaultProject: [
-            'eslint.config.js',
+            'eslint.config.mts',
             'manifest.json',
           ],
         },
@@ -22,13 +33,4 @@ export default tseslint.config(
     },
   },
   ...obsidianmd.configs.recommended,
-  globalIgnores([
-    'node_modules',
-    'dist',
-    'esbuild.config.mjs',
-    'eslint.config.js',
-    'version-bump.mjs',
-    'versions.json',
-    'main.js',
-  ]),
 );

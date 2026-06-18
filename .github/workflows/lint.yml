@@ -18,14 +18,14 @@ jobs:
         steps:
             - uses: actions/checkout@v6
             - name: Install pnpm
-              uses: pnpm/action-setup@v4
+              uses: pnpm/action-setup@v6
               with:
-                  version: 10
+                  version: 11
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v6
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: "pnpm"
-            - run: pnpm install
+            - run: pnpm ci --dangerously-allow-all-builds
             - run: pnpm run build --if-present
             - run: pnpm run lint
