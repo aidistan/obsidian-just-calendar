@@ -1,10 +1,10 @@
-import Obsidian, { moment } from 'obsidian';
+import Obsidian from 'obsidian';
 import { Settings, SettingTab } from './settings';
 import CalendarView from './calendar-view';
 import { translate as t } from './constants';
 
 export default class JustCalendarPlugin extends Obsidian.Plugin {
-  settings: Settings;
+  settings!: Settings;
 
   async onload() {
     await this.loadSettings();
@@ -26,15 +26,22 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
       this.app.workspace.on('file-open', (file: Obsidian.TFile | null) => {
         if (!file) return;
 
-        const { format, folder } = this.dailyNotesOptions;
-        const date = moment(file.basename, format, true);
-        if (!date.isValid()) return;
+        this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
+          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDateByFile(file));
+      }),
+    );
 
-        const expectedPath = `${folder}/${file.name}`.replace(/^\//, '');
-        if (file.path !== expectedPath) return;
+    this.registerEvent(
+      this.app.vault.on('rename', (file: Obsidian.TAbstractFile) => {
+        if (!(file instanceof Obsidian.TFile)) return;
+
+        this.reloadCalendarViews();
+
+        const activeFile = this.app.workspace.getActiveFile();
+        if (activeFile !== file) return;
 
         this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDate(date));
+          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDateByFile(file));
       }),
     );
   }

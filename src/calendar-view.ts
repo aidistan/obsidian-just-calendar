@@ -9,7 +9,7 @@ export default class CalendarView extends Obsidian.ItemView {
 
   public readonly icon = 'calendar-days';
 
-  private stimulusApp: Application;
+  private stimulusApp!: Application;
 
   constructor(leaf: Obsidian.WorkspaceLeaf, public plugin: Plugin) {
     super(leaf);
@@ -83,6 +83,17 @@ export default class CalendarView extends Obsidian.ItemView {
   public selectDate(date: moment.Moment) {
     this.containerEl.querySelector('[data-controller="calendar"]')
       ?.setAttribute('data-calendar-selected-date-value', date.format('YYYY-MM-DD'));
+  }
+
+  public selectDateByFile(file: Obsidian.TFile) {
+    const { format, folder } = this.plugin.dailyNotesOptions;
+    const date = moment(file.basename, format, true);
+    if (!date.isValid()) return;
+
+    const expectedPath = `${folder}/${file.name}`.replace(/^\//, '');
+    if (file.path !== expectedPath) return;
+
+    this.selectDate(date);
   }
 
   public checkDailyNote(date: moment.Moment) {
