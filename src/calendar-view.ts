@@ -90,7 +90,7 @@ export default class CalendarView extends Obsidian.ItemView {
     const date = moment(file.basename, format, true);
     if (!date.isValid()) return;
 
-    const expectedPath = `${folder}/${file.name}`.replace(/^\//, '');
+    const expectedPath = `${folder}/${file.name}`.replace(/^\/+/, '');
     if (file.path !== expectedPath) return;
 
     this.selectDate(date);
@@ -98,13 +98,13 @@ export default class CalendarView extends Obsidian.ItemView {
 
   public checkDailyNote(date: moment.Moment) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, '');
+    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
     return this.app.vault.getAbstractFileByPath(filePath) !== null;
   }
 
   public async openDailyNote(date: moment.Moment, newLeaf: boolean) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\//, '');
+    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
     let file = this.app.vault.getAbstractFileByPath(filePath);
 
     // Skip if already opened and been focusing
