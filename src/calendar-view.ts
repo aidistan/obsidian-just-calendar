@@ -146,7 +146,7 @@ export default class CalendarView extends Obsidian.ItemView {
 
         // Use template if available
         if (options.template) {
-          const templateFile = this.app.vault.getAbstractFileByPath(options.template + '.md');
+          const templateFile = this.app.vault.getAbstractFileByPath(options.template);
           if (templateFile instanceof Obsidian.TFile) {
             content = (await this.app.vault.read(templateFile))
               .replace(/{{\s*title\s*}}/g, date.format(options.format))
