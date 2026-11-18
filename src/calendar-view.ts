@@ -11,7 +11,10 @@ export default class CalendarView extends Obsidian.ItemView {
 
   private stimulusApp!: Application;
 
-  constructor(leaf: Obsidian.WorkspaceLeaf, public plugin: Plugin) {
+  constructor(
+    leaf: Obsidian.WorkspaceLeaf,
+    public plugin: Plugin,
+  ) {
     super(leaf);
     this.plugin = plugin;
   }
@@ -38,41 +41,80 @@ export default class CalendarView extends Obsidian.ItemView {
 
   public reload() {
     this.contentEl.empty();
-    this.contentEl.createDiv({
-      cls: 'calendar',
-      attr: {
-        'data-controller': 'calendar',
-        'data-calendar-locale-value': this.plugin.settings.localeOverrideWithLocaleDefault(),
-        'data-calendar-starting-on-value': this.plugin.settings.weekStartingOnWithLocaleDefault().toString(),
-        'data-calendar-selected-date-value': '',
-        'data-calendar-viewing-date-value': moment().format('YYYY-MM-DD'),
-        'data-calendar-view-type-value': 'days',
-        'data-action': 'wheel->calendar#scroll',
+    this.contentEl.createDiv(
+      {
+        cls: 'calendar',
+        attr: {
+          'data-controller': 'calendar',
+          'data-calendar-locale-value':
+            this.plugin.settings.localeOverrideWithLocaleDefault(),
+          'data-calendar-starting-on-value': this.plugin.settings
+            .weekStartingOnWithLocaleDefault()
+            .toString(),
+          'data-calendar-selected-date-value': '',
+          'data-calendar-viewing-date-value': moment().format('YYYY-MM-DD'),
+          'data-calendar-view-type-value': 'days',
+          'data-action': 'wheel->calendar#scroll',
+        },
       },
-    }, (calendar) => {
-      calendar.createDiv({ cls: 'calendar-header' }, (header) => {
-        header.createDiv({ cls: 'calendar-title' }, (title) => {
-          title.createEl('button', { attr: { type: 'button', 'data-calendar-target': 'month', 'data-action': 'calendar#toggleView' } });
-          title.createEl('button', { attr: { type: 'button', 'data-calendar-target': 'year', 'data-action': 'calendar#toggleView' } });
+      (calendar) => {
+        calendar.createDiv({ cls: 'calendar-header' }, (header) => {
+          header.createDiv({ cls: 'calendar-title' }, (title) => {
+            title.createEl('button', {
+              attr: {
+                type: 'button',
+                'data-calendar-target': 'month',
+                'data-action': 'calendar#toggleView',
+              },
+            });
+            title.createEl('button', {
+              attr: {
+                type: 'button',
+                'data-calendar-target': 'year',
+                'data-action': 'calendar#toggleView',
+              },
+            });
+          });
+          header.createDiv({ cls: 'calendar-navigation' }, (nav) => {
+            nav.createEl('button', {
+              attr: { type: 'button', 'data-action': 'calendar#prev' },
+            });
+            nav.createEl('button', {
+              attr: { type: 'button', 'data-action': 'calendar#next' },
+            });
+            nav.createEl('button', {
+              attr: { type: 'button', 'data-action': 'calendar#today' },
+            });
+          });
         });
-        header.createDiv({ cls: 'calendar-navigation' }, (nav) => {
-          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#prev' } });
-          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#next' } });
-          nav.createEl('button', { attr: { type: 'button', 'data-action': 'calendar#today' } });
-        });
-      });
-      calendar.createDiv({ cls: 'calendar-container', attr: { 'data-calendar-target': 'container' } }, (container) => {
-        container.createDiv({ cls: 'calendar-weekdays', attr: { 'data-calendar-target': 'weekdays' } });
-        container.createDiv({ cls: 'calendar-content', attr: { 'data-calendar-target': 'contents' } });
-      });
-    });
+        calendar.createDiv(
+          {
+            cls: 'calendar-container',
+            attr: { 'data-calendar-target': 'container' },
+          },
+          (container) => {
+            container.createDiv({
+              cls: 'calendar-weekdays',
+              attr: { 'data-calendar-target': 'weekdays' },
+            });
+            container.createDiv({
+              cls: 'calendar-content',
+              attr: { 'data-calendar-target': 'contents' },
+            });
+          },
+        );
+      },
+    );
 
     // Inject current instance into CalendarController
     window.setTimeout(() => {
       const el = this.contentEl.querySelector('[data-controller="calendar"]');
       if (el === null) return;
 
-      const controller = this.stimulusApp.getControllerForElementAndIdentifier(el, 'calendar') as CalendarController;
+      const controller = this.stimulusApp.getControllerForElementAndIdentifier(
+        el,
+        'calendar',
+      ) as CalendarController;
       if (controller === null) return;
 
       controller.parentView = this;
@@ -81,8 +123,12 @@ export default class CalendarView extends Obsidian.ItemView {
   }
 
   public selectDate(date: moment.Moment) {
-    this.containerEl.querySelector('[data-controller="calendar"]')
-      ?.setAttribute('data-calendar-selected-date-value', date.format('YYYY-MM-DD'));
+    this.containerEl
+      .querySelector('[data-controller="calendar"]')
+      ?.setAttribute(
+        'data-calendar-selected-date-value',
+        date.format('YYYY-MM-DD'),
+      );
   }
 
   public selectDateByFile(file: Obsidian.TFile) {
@@ -98,13 +144,15 @@ export default class CalendarView extends Obsidian.ItemView {
 
   public checkDailyNote(date: moment.Moment) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
+    const filePath =
+      `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
     return this.app.vault.getAbstractFileByPath(filePath) !== null;
   }
 
   public async openDailyNote(date: moment.Moment, newLeaf: boolean) {
     const options = this.plugin.dailyNotesOptions;
-    const filePath = `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
+    const filePath =
+      `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
     let file = this.app.vault.getAbstractFileByPath(filePath);
 
     // Skip if already opened and been focusing
@@ -118,20 +166,40 @@ export default class CalendarView extends Obsidian.ItemView {
     } else {
       if (this.plugin.settings.confirmBeforeCreating) {
         let neverAskAgain = false;
-        const confirmed = await new Promise((resolve) => new (class extends Obsidian.Modal {
-          constructor(app: Obsidian.App) {
-            super(app);
-            this.setTitle(t('createDailyNoteHeading'));
-            new Obsidian.Setting(this.contentEl)
-              .setName(t('createDailyNoteContent', filePath));
-            new Obsidian.Setting(this.contentEl)
-              .setName(t('neverAskAgain'))
-              .addToggle(toggle => toggle.onChange(value => { neverAskAgain = value; }));
-            new Obsidian.Setting(this.contentEl)
-              .addButton(btn => btn.setButtonText(t('cancel')).onClick(() => { resolve(false); this.close(); }))
-              .addButton(btn => btn.setButtonText(t('create')).setClass('mod-cta').onClick(() => { resolve(true); this.close(); }));
-          }
-        })(this.app).open());
+        const confirmed = await new Promise((resolve) =>
+          new (class extends Obsidian.Modal {
+            constructor(app: Obsidian.App) {
+              super(app);
+              this.setTitle(t('createDailyNoteHeading'));
+              new Obsidian.Setting(this.contentEl).setName(
+                t('createDailyNoteContent', filePath),
+              );
+              new Obsidian.Setting(this.contentEl)
+                .setName(t('neverAskAgain'))
+                .addToggle((toggle) =>
+                  toggle.onChange((value) => {
+                    neverAskAgain = value;
+                  }),
+                );
+              new Obsidian.Setting(this.contentEl)
+                .addButton((btn) =>
+                  btn.setButtonText(t('cancel')).onClick(() => {
+                    resolve(false);
+                    this.close();
+                  }),
+                )
+                .addButton((btn) =>
+                  btn
+                    .setButtonText(t('create'))
+                    .setClass('mod-cta')
+                    .onClick(() => {
+                      resolve(true);
+                      this.close();
+                    }),
+                );
+            }
+          })(this.app).open(),
+        );
 
         if (!confirmed) return;
 
@@ -146,17 +214,30 @@ export default class CalendarView extends Obsidian.ItemView {
 
         // Use template if available
         if (options.template) {
-          const templateFile = this.app.vault.getAbstractFileByPath(options.template);
+          const templateFile = this.app.vault.getAbstractFileByPath(
+            options.template,
+          );
           if (templateFile instanceof Obsidian.TFile) {
             content = (await this.app.vault.read(templateFile))
               .replace(/{{\s*title\s*}}/g, date.format(options.format))
-              .replace(/{{\s*date\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => date.format(format || 'YYYY-MM-DD'))
-              .replace(/{{\s*time\s*(:\s*([^}]+))?}}/g, (...[, , format]: string[]) => moment().format(format || 'HH:mm'));
+              .replace(
+                /{{\s*date\s*(:\s*([^}]+))?}}/g,
+                (...[, , format]: string[]) =>
+                  date.format(format || 'YYYY-MM-DD'),
+              )
+              .replace(
+                /{{\s*time\s*(:\s*([^}]+))?}}/g,
+                (...[, , format]: string[]) =>
+                  moment().format(format || 'HH:mm'),
+              );
           }
         }
 
         // Ensure folder exists
-        if (options.folder && !(this.app.vault.getAbstractFileByPath(options.folder))) {
+        if (
+          options.folder &&
+          !this.app.vault.getAbstractFileByPath(options.folder)
+        ) {
           await this.app.vault.createFolder(options.folder);
         }
 

@@ -26,8 +26,13 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
       this.app.workspace.on('file-open', (file: Obsidian.TFile | null) => {
         if (!file) return;
 
-        this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDateByFile(file));
+        this.app.workspace
+          .getLeavesOfType(CalendarView.VIEW_TYPE)
+          .forEach(
+            (leaf) =>
+              leaf.view instanceof CalendarView &&
+              leaf.view.selectDateByFile(file),
+          );
       }),
     );
 
@@ -40,8 +45,13 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
         const activeFile = this.app.workspace.getActiveFile();
         if (activeFile !== file) return;
 
-        this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-          .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.selectDateByFile(file));
+        this.app.workspace
+          .getLeavesOfType(CalendarView.VIEW_TYPE)
+          .forEach(
+            (leaf) =>
+              leaf.view instanceof CalendarView &&
+              leaf.view.selectDateByFile(file),
+          );
       }),
     );
   }
@@ -50,12 +60,13 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
     void this.openCalendarView();
   }
 
-  onunload() {
-  }
+  onunload() {}
 
   async openCalendarView() {
     const { workspace } = this.app;
-    const existingLeaf = workspace.getLeavesOfType(CalendarView.VIEW_TYPE).first();
+    const existingLeaf = workspace
+      .getLeavesOfType(CalendarView.VIEW_TYPE)
+      .first();
 
     if (existingLeaf?.view instanceof CalendarView) {
       await workspace.revealLeaf(existingLeaf);
@@ -67,18 +78,24 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
         return;
       }
 
-      await newLeaf.setViewState({ type: CalendarView.VIEW_TYPE, active: true });
+      await newLeaf.setViewState({
+        type: CalendarView.VIEW_TYPE,
+        active: true,
+      });
       await workspace.revealLeaf(newLeaf);
     }
   }
 
   reloadCalendarViews() {
-    this.app.workspace.getLeavesOfType(CalendarView.VIEW_TYPE)
-      .forEach((leaf) => leaf.view instanceof CalendarView && leaf.view.reload());
+    this.app.workspace
+      .getLeavesOfType(CalendarView.VIEW_TYPE)
+      .forEach(
+        (leaf) => leaf.view instanceof CalendarView && leaf.view.reload(),
+      );
   }
 
   async loadSettings() {
-    this.settings = new Settings((await this.loadData() || {}) as Settings);
+    this.settings = new Settings(((await this.loadData()) || {}) as Settings);
   }
 
   async saveSettings() {
@@ -86,17 +103,21 @@ export default class JustCalendarPlugin extends Obsidian.Plugin {
   }
 
   get dailyNotesOptions(): {
-    format: string,
-    folder: string,
-    template: string
+    format: string;
+    folder: string;
+    template: string;
   } {
-    const dailyNotesPlugin = this.app.internalPlugins.getPluginById('daily-notes');
+    const dailyNotesPlugin =
+      this.app.internalPlugins.getPluginById('daily-notes');
     if (!dailyNotesPlugin || !dailyNotesPlugin.enabled) {
       new Obsidian.Notice(t('dailyNotesPluginNotEnabled'));
       throw new Error(t('dailyNotesPluginNotEnabled'));
     }
 
-    const options = Object.assign({ folder: '', template: '' }, dailyNotesPlugin.instance.options);
+    const options = Object.assign(
+      { folder: '', template: '' },
+      dailyNotesPlugin.instance.options,
+    );
     options.format ||= 'YYYY-MM-DD'; // default format of daily-notes plugin
     return options;
   }

@@ -12,11 +12,11 @@ declare module 'obsidian' {
         enabled: boolean;
         instance: Obsidian.Plugin & {
           options: {
-            format: string,
-            folder: string,
-            template: string
-          }
-        }
+            format: string;
+            folder: string;
+            template: string;
+          };
+        };
       };
     };
     plugins: {

@@ -1,6 +1,11 @@
 import Obsidian from 'obsidian';
 import Plugin from './main';
-import { translate as t, default_to as d, CURRENT_LOCALE, WEEKDAYS_ORDER } from './constants';
+import {
+  translate as t,
+  default_to as d,
+  CURRENT_LOCALE,
+  WEEKDAYS_ORDER,
+} from './constants';
 
 export class Settings {
   localeOverride: string;
@@ -21,12 +26,19 @@ export class Settings {
     this.confirmBeforeCreating = confirmBeforeCreating;
   }
 
-  localeOverrideWithLocaleDefault(): string { return this.localeOverride || d('localeOverride'); }
-  weekStartingOnWithLocaleDefault(): string { return this.weekStartingOn || d('weekStartingOn'); }
+  localeOverrideWithLocaleDefault(): string {
+    return this.localeOverride || d('localeOverride');
+  }
+  weekStartingOnWithLocaleDefault(): string {
+    return this.weekStartingOn || d('weekStartingOn');
+  }
 }
 
 export class SettingTab extends Obsidian.PluginSettingTab {
-  constructor(app: Obsidian.App, private plugin: Plugin) {
+  constructor(
+    app: Obsidian.App,
+    private plugin: Plugin,
+  ) {
     super(app, plugin);
   }
 
@@ -37,47 +49,57 @@ export class SettingTab extends Obsidian.PluginSettingTab {
     new Obsidian.Setting(containerEl)
       .setName(t('localeOverrideName'))
       .setDesc(t('localeOverrideDesc'))
-      .addDropdown(dropdown => dropdown
-        .addOption('', `${t('localeOverrideDefault')} (${CURRENT_LOCALE})`)
-        .addOption('en', 'English')
-        .addOption('zh', '简体中文')
-        .setValue(this.plugin.settings.localeOverride)
-        .onChange(async (value) => {
-          this.plugin.settings.localeOverride = value;
-          await this.plugin.saveSettings();
-          this.plugin.reloadCalendarViews();
-        }),
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption('', `${t('localeOverrideDefault')} (${CURRENT_LOCALE})`)
+          .addOption('en', 'English')
+          .addOption('zh', '简体中文')
+          .setValue(this.plugin.settings.localeOverride)
+          .onChange(async (value) => {
+            this.plugin.settings.localeOverride = value;
+            await this.plugin.saveSettings();
+            this.plugin.reloadCalendarViews();
+          }),
       );
 
     new Obsidian.Setting(containerEl)
       .setName(t('weekStartingOnName'))
       .setDesc(t('weekStartingOnDesc'))
-      .addDropdown(dropdown => dropdown
-        .addOption('', `${t('weekStartingOnDefault')} (${
-          t(WEEKDAYS_ORDER[parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault())] as string)
-        })`)
-        .addOption('0', t('sunday'))
-        .addOption('1', t('monday'))
-        .addOption('2', t('tuesday'))
-        .addOption('3', t('wednesday'))
-        .addOption('4', t('thursday'))
-        .addOption('5', t('friday'))
-        .addOption('6', t('saturday'))
-        .setValue(this.plugin.settings.weekStartingOn)
-        .onChange(async (value) => {
-          this.plugin.settings.weekStartingOn = value;
-          await this.plugin.saveSettings();
-          this.plugin.reloadCalendarViews();
-        }));
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption(
+            '',
+            `${t('weekStartingOnDefault')} (${t(
+              WEEKDAYS_ORDER[
+                parseInt(this.plugin.settings.weekStartingOnWithLocaleDefault())
+              ] as string,
+            )})`,
+          )
+          .addOption('0', t('sunday'))
+          .addOption('1', t('monday'))
+          .addOption('2', t('tuesday'))
+          .addOption('3', t('wednesday'))
+          .addOption('4', t('thursday'))
+          .addOption('5', t('friday'))
+          .addOption('6', t('saturday'))
+          .setValue(this.plugin.settings.weekStartingOn)
+          .onChange(async (value) => {
+            this.plugin.settings.weekStartingOn = value;
+            await this.plugin.saveSettings();
+            this.plugin.reloadCalendarViews();
+          }),
+      );
 
     new Obsidian.Setting(containerEl)
       .setName(t('confirmBeforeCreatingName'))
       .setDesc(t('confirmBeforeCreatingDesc'))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.confirmBeforeCreating)
-        .onChange(async (value) => {
-          this.plugin.settings.confirmBeforeCreating = value;
-          await this.plugin.saveSettings();
-        }));
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.confirmBeforeCreating)
+          .onChange(async (value) => {
+            this.plugin.settings.confirmBeforeCreating = value;
+            await this.plugin.saveSettings();
+          }),
+      );
   }
 }
