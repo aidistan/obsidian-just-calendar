@@ -1,6 +1,7 @@
 import obsidianmd from 'eslint-plugin-obsidianmd';
 import globals from 'globals';
 import { globalIgnores, defineConfig } from 'eslint/config';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default defineConfig(
   globalIgnores([
@@ -12,7 +13,7 @@ export default defineConfig(
     'main.js',
     'package.json',
     'package-lock.json',
-		'tsconfig.json',
+    'tsconfig.json',
   ]),
   {
     languageOptions: {
@@ -21,10 +22,7 @@ export default defineConfig(
       },
       parserOptions: {
         projectService: {
-          allowDefaultProject: [
-            'eslint.config.mts',
-            'manifest.json',
-          ],
+          allowDefaultProject: ['eslint.config.mts', 'manifest.json'],
         },
         tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.json'],
@@ -32,4 +30,5 @@ export default defineConfig(
     },
   },
   ...obsidianmd.configs.recommended,
+  eslintConfigPrettier,
 );
