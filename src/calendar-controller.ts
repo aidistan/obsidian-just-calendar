@@ -1,4 +1,4 @@
-import Obsidian, { moment } from 'obsidian';
+import Obsidian from 'obsidian';
 import { Controller } from '@hotwired/stimulus';
 import CalendarView from './calendar-view';
 import { LOCALES } from './constants';

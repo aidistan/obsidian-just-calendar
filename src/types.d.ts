@@ -27,7 +27,10 @@ declare module 'obsidian' {
 
 // Add complementary declarations for Obsidian's injections
 declare global {
+  const moment: typeof import('moment');
+
   interface Window {
     app: Obsidian.App | null;
+    moment: typeof import('moment');
   }
 }

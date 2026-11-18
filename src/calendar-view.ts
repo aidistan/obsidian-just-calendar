@@ -1,4 +1,5 @@
-import Obsidian, { moment } from 'obsidian';
+import Obsidian from 'obsidian';
+import type { Moment } from 'moment';
 import { Application } from '@hotwired/stimulus';
 import Plugin from './main';
 import CalendarController from './calendar-controller';
@@ -122,7 +123,7 @@ export default class CalendarView extends Obsidian.ItemView {
     }, 100);
   }
 
-  public selectDate(date: moment.Moment) {
+  public selectDate(date: Moment) {
     this.containerEl
       .querySelector('[data-controller="calendar"]')
       ?.setAttribute(
@@ -142,14 +143,14 @@ export default class CalendarView extends Obsidian.ItemView {
     this.selectDate(date);
   }
 
-  public checkDailyNote(date: moment.Moment) {
+  public checkDailyNote(date: Moment) {
     const options = this.plugin.dailyNotesOptions;
     const filePath =
       `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
     return this.app.vault.getAbstractFileByPath(filePath) !== null;
   }
 
-  public async openDailyNote(date: moment.Moment, newLeaf: boolean) {
+  public async openDailyNote(date: Moment, newLeaf: boolean) {
     const options = this.plugin.dailyNotesOptions;
     const filePath =
       `${options.folder}/${date.format(options.format)}.md`.replace(/^\/+/, '');
